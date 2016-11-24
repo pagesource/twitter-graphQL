@@ -1,72 +1,140 @@
 import {
 	GraphQLSchema,
-	GraphQLObjectType,
-	GraphQLString,
-	GraphQLList,
-	GraphQLID,
-	GraphQLInt
+  GraphQLObjectType,
+  GraphQLID,
+  GraphQLString,
+  GraphQLNonNull,
+  GraphQLInt,
+  GraphQLList,
+  GraphQLScalarType,
+  GraphQLEnumType
 } from 'graphql';
 
-import {searchTweets} from '../twitter-cli';
-
-const BASE_URL = "http://localhost:3000";
+import * as twitter from '../twitter-cli';
 
 import fetch from 'node-fetch';
 
-function getPersonByUrl(relativeUrl) {
-	return fetch(`${BASE_URL}${relativeUrl}`,)
-				.then(res => res.json())
-				.then(json => json)
-}
+let UserType = new GraphQLObjectType({
+  name        : 'TwitterUser',
+  description : 'Twitter user',
+  fields      : () => ({
+    created_at        : { type: GraphQLString },
+    description       : { type: GraphQLString },
+    id                : { type: GraphQLID }, // GraphQLInt would return null
+    screen_name       : { type: GraphQLString },
+    name              : { type: GraphQLString },
+    profile_image_url : { type: GraphQLString },
+    url               : { type: GraphQLString },
+    tweets_count      : {
+      type    : GraphQLInt,
+      resolve : ({ statuses_count }) => statuses_count
+    },
+    followers_count : { type: GraphQLInt },
+    tweets          : {
+      type        : new GraphQLList(TweetType),
+      description : 'Get a list of tweets for current user',
+      args        : {
+        limit: {
+          type         : GraphQLInt,
+          defaultValue : 10
+        }
+      },
+      //             user            args
+      resolve: ({ id: user_id }, { limit }) => twitter.getTweets(user_id, limit)
+    }
+  })
 
-const PersonType = new GraphQLObjectType({
-	name: 'Person',
-	description: 'Person desc',
-	fields: () => ({
-		firstName: {
-			type: GraphQLString,
-			resolve: (person) => (person.first_name)
-		},
-		lastName: {
-			type: GraphQLString,
-			resolve: (person) => (person.last_name)
-		},
-		email: { type: GraphQLString },
-		username: { type: GraphQLString },
-		id: { type: GraphQLString },
-		friends: {
-			type: new GraphQLList(PersonType),
-			resolve: (person) => person.friends.map(function(item) {return getPersonByUrl(item)})
-		}
-	})
-})
+});
 
 let TweetType = new GraphQLObjectType({
   name        : 'Tweet',
   description : 'A tweet object',
   fields      : () => ({
-    id            : { type: GraphQLID, resolve: (tweetdata) => (tweetdata.id) },
-    created_at    : { type: GraphQLString, resolve: (tweetdata) => (tweetdata.created_at) },
-    text          : { type: GraphQLString, resolve: (tweetdata) => (tweetdata.text) },
-    retweet_count : { type: GraphQLInt, resolve: (tweetdata) => (tweetdata.retweet_count) }
+    id            : { type: GraphQLID },
+    created_at    : { type: GraphQLString },
+    text          : { type: GraphQLString },
+    retweet_count : { type: GraphQLInt },
+    user          : { type: UserType },
+    retweets      : {
+      type        : new GraphQLList(RetweetType),
+      description : 'Get a list of retweets',
+      args        : {
+        limit: {
+          type         : GraphQLInt,
+          defaultValue : 5
+        }
+      },
+      //        passing integer 'id' here doesn't work surprisingly, had to use 'id_str'
+      resolve: ({ id_str: tweetId }, { limit }) => twitter.getRetweets(tweetId, limit)
+    }
   })
 });
 
+let RetweetType = new GraphQLObjectType({
+  name        : 'Retweet',
+  description : 'Retweet of a tweet',
+  fields      : () => ({
+    id                   : { type: GraphQLID },
+    created_at           : { type: GraphQLString },
+    in_reply_to_tweet_id : {
+      type    : GraphQLString,
+      resolve : ({ in_reply_to_status_id }) => in_reply_to_status_id
+    },
+    in_reply_to_user_id     : { type: GraphQLInt },
+    in_reply_to_screen_name : { type: GraphQLString },
+    retweeted_status        : { type: TweetType },
+    user                    : { type: UserType }
+  })
+});
 
-const QueryType = new GraphQLObjectType({
-	name: "Twitter",
-	description: "Make twitter get request",
-	fields: () => ({
-		tweets: {
-			type: new GraphQLList(TweetType),
-			args: {
-				q: { type: GraphQLString }
-			},
-			resolve: (root, args) => searchTweets(args)
-		}
-	})
-})
+let userIdentityType = new GraphQLScalarType({
+  name         : 'UserIdentity',
+  description  : 'Parse user provided identity',
+  serialize    : value => value,
+  parseValue   : value => value,
+  parseLiteral : ast => {
+
+    if (ast.kind !== Kind.STRING && ast.kind !== Kind.INT) {
+      throw new GraphQLError("Query error: Can only parse Integer and String but got a: " + ast.kind, [ast]);
+    }
+
+    return ast.value;
+  }
+});
+
+
+let twitterType = new GraphQLObjectType({
+  name        : 'TwitterAPI',
+  description : 'The Twitter API',
+  fields : {
+    tweet: {
+      type : TweetType,
+      args : {
+        id : {
+          type        : new GraphQLNonNull(GraphQLString),
+          description : 'Unique ID of tweet'
+        }
+      },
+      resolve: (_, { id: tweetId }) => twitter.getTweet(tweetId)
+    },
+    search: {
+      type        : new GraphQLList(TweetType),
+      description : "Returns a collection of relevant Tweets matching a specified query.",
+      args: {
+        q: {
+          type        : new GraphQLNonNull(GraphQLString),
+          description : "A UTF-8, URL-encoded search query of 500 characters maximum, including operators. Queries may additionally be limited by complexity."
+        },
+        count: {
+          type        : GraphQLInt,
+          description : "The number of tweets to return per page, up to a maximum of 100. This was formerly the “rpp” parameter in the old Search API."
+        }
+      },
+      resolve: (_, searchArgs) => twitter.searchTweets(searchArgs)
+    }
+  }
+});
 
 export default new GraphQLSchema({
-	query: QueryType
+	query: twitterType
 })

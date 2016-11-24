@@ -7,17 +7,13 @@ var twitter = new twitterAPI({
   access_token_key: "2320754958-hQv1iTw6s4DD7FZp4OmncjgIPuRd7tWHCc38a3m",
   access_token_secret: "7veEanjO5rwFlnlJMBWTmYwxRAq14QLiA9067vblxFgWJ"
 });
-//
-// function searchTweets(query) {
-//   twitter.get('search/tweets', { q: query, result_type: 'recent' }, function(error, tweet, response) {
-//         if (error) {
-//           return error;
-//         };
-//         return tweet;
-//     });
-// }
 
+export const getUser = (identifier, identity) => returnPromise('users/show', { [identifier]: identity });
+export const getTweets = (user_id, count)     => returnPromise('statuses/user_timeline', { user_id, count });
+export const getTweet = (id)                  => returnPromise('statuses/show', { id });
+export const getRetweets = (id, count)        => returnPromise('statuses/retweets', { id, count });
 export const searchTweets = (queryParams)   => returnPromise("search/tweets", Object.assign({result_type: 'recent'}, queryParams), 'statuses');
+
 
 const returnPromise = (endpoint, parameters, resultPath = null) => {
 
