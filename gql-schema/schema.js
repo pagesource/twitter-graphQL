@@ -2,8 +2,12 @@ import {
 	GraphQLSchema,
 	GraphQLObjectType,
 	GraphQLString,
-	GraphQLList
+	GraphQLList,
+	GraphQLID,
+	GraphQLInt
 } from 'graphql';
+
+import {searchTweets} from '../twitter-cli';
 
 const BASE_URL = "http://localhost:3000";
 
@@ -37,16 +41,28 @@ const PersonType = new GraphQLObjectType({
 	})
 })
 
+let TweetType = new GraphQLObjectType({
+  name        : 'Tweet',
+  description : 'A tweet object',
+  fields      : () => ({
+    id            : { type: GraphQLID, resolve: (tweetdata) => (tweetdata.id) },
+    created_at    : { type: GraphQLString, resolve: (tweetdata) => (tweetdata.created_at) },
+    text          : { type: GraphQLString, resolve: (tweetdata) => (tweetdata.text) },
+    retweet_count : { type: GraphQLInt, resolve: (tweetdata) => (tweetdata.retweet_count) }
+  })
+});
+
+
 const QueryType = new GraphQLObjectType({
-	name: "Query",
-	description: "...",
+	name: "Twitter",
+	description: "Make twitter get request",
 	fields: () => ({
-		person: {
-			type: PersonType,
+		tweets: {
+			type: new GraphQLList(TweetType),
 			args: {
-				id: { type: GraphQLString }
+				q: { type: GraphQLString }
 			},
-			resolve: (root, args) => getPersonByUrl(`/people/${args.id}`)
+			resolve: (root, args) => searchTweets(args)
 		}
 	})
 })
