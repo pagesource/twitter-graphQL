@@ -10,9 +10,9 @@ import {
   GraphQLEnumType
 } from 'graphql';
 
-import * as twitter from '../twitter-cli';
+import * as twitterCli from '../twitter-cli';
 
-import fetch from 'node-fetch';
+import * as Weather from '../weather';
 
 let UserType = new GraphQLObjectType({
   name        : 'TwitterUser',
@@ -25,10 +25,22 @@ let UserType = new GraphQLObjectType({
     name              : { type: GraphQLString },
     profile_image_url : { type: GraphQLString },
     url               : { type: GraphQLString },
+		location					: {
+			type        : GraphQLString,
+      description : 'Get location of user',
+      //             user            args
+      resolve: ({ screen_name: screen_name }) => twitterCli.getUser(screen_name)
+		},
     tweets_count      : {
       type    : GraphQLInt,
       resolve : ({ statuses_count }) => statuses_count
     },
+		weather					: {
+			type        : GraphQLString,
+      description : 'Get location of user',
+      //             user            args
+      resolve: ({ location: location }) => Weather.getTemperature(location)
+		},
     followers_count : { type: GraphQLInt },
     tweets          : {
       type        : new GraphQLList(TweetType),
@@ -40,7 +52,7 @@ let UserType = new GraphQLObjectType({
         }
       },
       //             user            args
-      resolve: ({ id: user_id }, { limit }) => twitter.getTweets(user_id, limit)
+      resolve: ({ id: user_id }, { limit }) => twitterCli.getTweets(user_id, limit)
     }
   })
 
@@ -65,7 +77,7 @@ let TweetType = new GraphQLObjectType({
         }
       },
       //        passing integer 'id' here doesn't work surprisingly, had to use 'id_str'
-      resolve: ({ id_str: tweetId }, { limit }) => twitter.getRetweets(tweetId, limit)
+      resolve: ({ id_str: tweetId }, { limit }) => twitterCli.getRetweets(tweetId, limit)
     }
   })
 });
@@ -87,22 +99,6 @@ let RetweetType = new GraphQLObjectType({
   })
 });
 
-let userIdentityType = new GraphQLScalarType({
-  name         : 'UserIdentity',
-  description  : 'Parse user provided identity',
-  serialize    : value => value,
-  parseValue   : value => value,
-  parseLiteral : ast => {
-
-    if (ast.kind !== Kind.STRING && ast.kind !== Kind.INT) {
-      throw new GraphQLError("Query error: Can only parse Integer and String but got a: " + ast.kind, [ast]);
-    }
-
-    return ast.value;
-  }
-});
-
-
 let twitterType = new GraphQLObjectType({
   name        : 'TwitterAPI',
   description : 'The Twitter API',
@@ -115,7 +111,7 @@ let twitterType = new GraphQLObjectType({
           description : 'Unique ID of tweet'
         }
       },
-      resolve: (_, { id: tweetId }) => twitter.getTweet(tweetId)
+      resolve: (_, { id: tweetId }) => twitterCli.getTweet(tweetId)
     },
     search: {
       type        : new GraphQLList(TweetType),
@@ -130,7 +126,7 @@ let twitterType = new GraphQLObjectType({
           description : "The number of tweets to return per page, up to a maximum of 100. This was formerly the “rpp” parameter in the old Search API."
         }
       },
-      resolve: (_, searchArgs) => twitter.searchTweets(searchArgs)
+      resolve: (_, searchArgs) => twitterCli.searchTweets(searchArgs)
     }
   }
 });
