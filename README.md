@@ -9,3 +9,6 @@ $ cd graphql-twitter
 $ npm install
 $ npm start
 ```
+
+## Access GraphiQL
+http://localhost:3000/GraphiQL

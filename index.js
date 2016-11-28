@@ -6,7 +6,7 @@ import constants from './constants';
 
 const app = express();
 
-app.use('/graphql',graphQLHTTP({
+app.use('/graphiql',graphQLHTTP({
 	schema: schema,
 	graphiql: true
 }))
