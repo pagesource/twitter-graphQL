@@ -131,6 +131,6 @@ let twitterType = new GraphQLObjectType({
   }
 });
 
-export default new GraphQLSchema({
+export var Schema = new GraphQLSchema({
 	query: twitterType
 })

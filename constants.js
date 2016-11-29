@@ -1,3 +1,3 @@
 export default {
-    devPort: 3000
+    devPort: 5000
 };
