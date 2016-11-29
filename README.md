@@ -10,5 +10,9 @@ $ npm install
 $ npm start
 ```
 
+## Access running App
+http://localhost:3000/
+It starts a webpack dev server and then for the graphql uses a proxy to fetch data.
+
 ## Access GraphiQL
-http://localhost:3000/GraphiQL
+http://localhost:8080/graphql
