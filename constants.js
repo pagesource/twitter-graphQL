@@ -1,3 +1,4 @@
 export default {
-    devPort: 5000
+    devPort: 3000,
+    GraphQLPort: 8080
 };

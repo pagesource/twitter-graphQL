@@ -6,9 +6,10 @@ import webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
 import {clean} from 'require-clean';
 import {exec} from 'child_process';
+import constants from './constants';
 
-const APP_PORT = 3000;
-const GRAPHQL_PORT = 8080;
+const APP_PORT = constants.devPort;
+const GRAPHQL_PORT = constants.GraphQLPort;
 
 let graphQLServer;
 let appServer;

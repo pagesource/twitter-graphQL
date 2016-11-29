@@ -69,13 +69,9 @@
                 }
               ],
               "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "Tweet",
-                  "ofType": null
-                }
+                "kind": "OBJECT",
+                "name": "Viewer",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -469,6 +465,33 @@
                 "kind": "OBJECT",
                 "name": "TwitterUser",
                 "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "Viewer",
+          "description": null,
+          "fields": [
+            {
+              "name": "tweet",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Tweet",
+                  "ofType": null
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null

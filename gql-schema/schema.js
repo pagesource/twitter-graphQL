@@ -99,6 +99,16 @@ let RetweetType = new GraphQLObjectType({
   })
 });
 
+let viewerType = new GraphQLObjectType({
+  name: 'Viewer',
+  fields: {
+    tweet:{
+      type: new GraphQLList(TweetType),
+      resolve: (viewer) => twitterCli.searchTweets({q: "reactjs"}),
+    },
+  },
+});
+
 let twitterType = new GraphQLObjectType({
   name        : 'TwitterAPI',
   description : 'The Twitter API',
@@ -114,7 +124,7 @@ let twitterType = new GraphQLObjectType({
       resolve: (_, { id: tweetId }) => twitterCli.getTweet(tweetId)
     },
     search: {
-      type        : new GraphQLList(TweetType),
+      type        : viewerType,
       description : "Returns a collection of relevant Tweets matching a specified query.",
       args: {
         q: {

@@ -4,9 +4,13 @@ Twitter API aggregator on top of GraphQL
 ### How to start the server?
 
 ```
-$ git clone https://github.com/shafeeqonline/graphql-twitter.git
-$ cd graphql-twitter
+$ git clone https://github.com/pagesource/twitter-graphQL.git
+$ cd twitter-graphQL
+
+//install dependencies
 $ npm install
+
+// Starts both the webpack server as well as the graphQL server on 2 different ports
 $ npm start
 ```
 

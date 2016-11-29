@@ -5,9 +5,12 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <h1>Widget list</h1>
-        <h1>id: {this.props.search.id}</h1>
-        <h1>text: {this.props.tweet.text}</h1>
+        <h1>Tweet list</h1>
+          <ul>
+            {this.props.tweet.tweet.map(tweet =>
+              <li key={tweet.id}>{tweet.text} (ID: {tweet.id})</li>
+            )}
+          </ul>
       </div>
     );
   }
@@ -16,9 +19,11 @@ class App extends React.Component {
 export default Relay.createContainer(App, {
   fragments: {
     tweet: () => Relay.QL`
-      fragment on Tweet {
-        id,
-        text
+      fragment on Viewer {
+        tweet{
+          id,
+          text
+        }
       }
     `,
   },

@@ -41,7 +41,7 @@ type TwitterAPI {
     # The number of tweets to return per page, up to a maximum of 100. This was
     # formerly the “rpp” parameter in the old Search API.
     count: Int
-  ): [Tweet]
+  ): Viewer
 }
 
 # Twitter user
@@ -64,4 +64,8 @@ type TwitterUser {
 
   # Get a list of tweets for current user
   tweets(limit: Int = 10): [Tweet]
+}
+
+type Viewer {
+  tweet: [Tweet]
 }
