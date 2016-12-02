@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css?family=Slabo+27px');
+
+body {
+  background: #efefef;
+  font-family: 'Slabo 27px', serif;
+  font-size: 50px;
+}
+h1{
+  text-align: center;
+}
+ul{
+  padding-right: 40px;
+}
+li{
+  border: 1px solid #aeaeae;
+  font-size: 30px;
+  list-style-type: none;
+  margin: 20px 10px;
+  padding:20px 10px;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.25), 0 8px 8px rgba(0,0,0,0.22);
+  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+li:hover {
+  box-shadow: 0 18px 35px rgba(0,0,0,0.25), 0 12px 12px rgba(0,0,0,0.22);
+}

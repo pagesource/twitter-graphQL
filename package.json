@@ -37,6 +37,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "babel-cli": "^6.7.5"
+    "babel-cli": "^6.7.5",
+    "css-loader": "^0.26.0",
+    "style-loader": "^0.13.1"
   }
 }

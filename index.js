@@ -24,6 +24,11 @@ function startAppServer(callback) {
           exclude: /node_modules/,
           loader: 'babel',
           test: /\.js$/,
+        },
+        {
+          exclude: /node_modules/,
+          loader: 'style!css',
+          test: /\.css$/,
         }
       ]
     },
@@ -92,7 +97,7 @@ const watcher = chokidar.watch('./gql-schema/{database,schema}.js');
 watcher.on('change', path => {
   console.log(`\`${path}\` changed. Restarting.`);
   startServers(() =>
-    console.log('Restart your browser to use the updated schema.')
-  );
+  console.log('Restart your browser to use the updated schema.')
+);
 });
 startServers();
