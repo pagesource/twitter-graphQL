@@ -8,7 +8,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <h1>Twitterati</h1>
+        <h1>Twitteratis</h1>
             {this.props.tweet.tweet.map(tweet =>  
             //  <span key={tweet.id}><small>id: {tweet.id}</small> <br></br> {tweet.text}  <br></br>-- @<i>{tweet.user.screen_name}</i></span>
            
