@@ -104,7 +104,7 @@ let viewerType = new GraphQLObjectType({
   fields: {
     tweet:{
       type: new GraphQLList(TweetType),
-      resolve: (viewer) => twitterCli.searchTweets({q: "reactjs"}),
+      resolve: (viewer) => viewer,
     },
   },
 });
