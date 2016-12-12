@@ -14,6 +14,13 @@ ReactDOM.render(
     environment={Relay.Store}
     Container={App}
     queryConfig={new AppHomeRoute()}
+    render={({done, error, props}) => {
+      if (props) {
+        return <App {...props} />;
+      } else {
+        return <div>Loading...</div>;
+      }
+    }}
   />
           </MuiThemeProvider>
 
