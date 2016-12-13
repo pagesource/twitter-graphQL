@@ -6,6 +6,13 @@ import './app.css';
 
 
 class App extends React.Component {
+
+  trimDate(fullDate) {
+    const dateLength = fullDate.length;
+    let dateStamp = fullDate.slice(3,10) + " " + fullDate.slice(dateLength - 4,dateLength)
+    return dateStamp;
+  }
+
   render() {
     return (
       <div>
@@ -20,7 +27,6 @@ class App extends React.Component {
            }}
            >
 
-
     <CardText
     style={{
       fontSize:'22px'
@@ -30,7 +36,7 @@ class App extends React.Component {
         <CardHeader
       title={tweet.user.screen_name}
 avatar={tweet.user.profile_image_url}
-subtitle={tweet.created_at}
+subtitle={this.trimDate(tweet.created_at)}
 style={{
   textAlign:'right'
 }}
