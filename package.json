@@ -1,12 +1,11 @@
 {
   "name": "graphqlsample",
   "version": "1.0.0",
-  "description": "",
+  "description": "A GrapQL wrapper for the twitter API",
   "main": "index.js",
   "scripts": {
     "start": "babel-node ./index.js",
-    "update-schema": "babel-node ./scripts/updateSchema.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "update-schema": "babel-node ./scripts/updateSchema.js"
   },
   "dependencies": {
     "babel-core": "^6.14.0",
@@ -37,10 +36,22 @@
     "webpack-dev-server": "1.15.1"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.7.5",
     "css-loader": "^0.26.0",
     "style-loader": "^0.13.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pagesource/twitter-graphQL.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pagesource/twitter-graphQL/issues"
+  },
+  "homepage": "https://github.com/pagesource/twitter-graphQL#readme",
+  "keywords": [
+    "twitter",
+    "graphQL"
+  ]
 }
