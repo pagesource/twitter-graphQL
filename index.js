@@ -4,8 +4,8 @@ import graphQLHTTP from 'express-graphql';
 import path from 'path';
 import webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
-import {clean} from 'require-clean';
-import {exec} from 'child_process';
+import { clean } from 'require-clean';
+import { exec } from 'child_process';
 import constants from './constants';
 
 const APP_PORT = constants.devPort;
@@ -32,13 +32,13 @@ function startAppServer(callback) {
         }
       ]
     },
-    output: {filename: '/app.js', path: '/', publicPath: '/js/'}
+    output: { filename: '/app.js', path: '/', publicPath: '/js/' }
   });
   appServer = new WebpackDevServer(compiler, {
     contentBase: '/public/',
-    proxy: {'/graphql': `http://localhost:${GRAPHQL_PORT}`},
+    proxy: { '/graphql': `http://localhost:${GRAPHQL_PORT}` },
     publicPath: '/js/',
-    stats: {colors: true}
+    stats: { colors: true }
   });
   // Serve static resources
   appServer.use('/', express.static(path.resolve(__dirname, 'public')));
@@ -53,7 +53,7 @@ function startAppServer(callback) {
 function startGraphQLServer(callback) {
   // Expose a GraphQL endpoint
   clean('./gql-schema/schema');
-  const {Schema} = require('./gql-schema/schema');
+  const { Schema } = require('./gql-schema/schema');
   const graphQLApp = express();
   graphQLApp.use('/', graphQLHTTP({
     graphiql: true,
@@ -83,12 +83,14 @@ function startServers(callback) {
   exec('npm run update-schema', (error, stdout) => {
     console.log(stdout);
     let doneTasks = 0;
+
     function handleTaskDone() {
       doneTasks++;
       if (doneTasks === 2 && callback) {
         callback();
       }
     }
+
     startGraphQLServer(handleTaskDone);
     startAppServer(handleTaskDone);
   });
@@ -97,7 +99,7 @@ const watcher = chokidar.watch('./gql-schema/{database,schema}.js');
 watcher.on('change', path => {
   console.log(`\`${path}\` changed. Restarting.`);
   startServers(() =>
-  console.log('Restart your browser to use the updated schema.')
-);
+    console.log('Restart your browser to use the updated schema.')
+  );
 });
 startServers();

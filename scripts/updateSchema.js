@@ -1,13 +1,12 @@
 #!/usr/bin/env babel-node --optional es7.asyncFunctions
-
 import fs from 'fs';
 import path from 'path';
 import { Schema } from '../gql-schema/schema';
-import { graphql }  from 'graphql';
+import { graphql } from 'graphql';
 import { introspectionQuery, printSchema } from 'graphql/utilities';
 
 // Save JSON of full schema introspection for Babel Relay Plugin to use
-(async () => {
+(async() => {
   var result = await (graphql(Schema, introspectionQuery));
   if (result.errors) {
     console.error(
