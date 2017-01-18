@@ -22,8 +22,9 @@ import{
 import * as twitterCli from '../twitter-cli';
 import * as Weather from '../weather';
 
-  class Store {};
-  let store = new Store();
+class Store {};
+let store = new Store();
+
 let nodeDefs = nodeDefinitions(    
       (globalId) => {
         let {type} = fromGlobalId(globalId);
@@ -126,24 +127,32 @@ let RetweetType = new GraphQLObjectType({
   })
 });
 
+/*let viewer = {};
 let viewerType = new GraphQLObjectType({
   name: 'Viewer',
-  fields: {
+  fields: () => ({
+    id: globalIdField("Viewer"),
     tweet: {
       type: new GraphQLList(TweetType),
-      resolve: (viewer) => viewer,
-    },
-  },
-});
+      resolve: (viewer) => viewer
+    }
+  })
+});*/
+
+let searchConnection = connectionDefinitions({
+    name:'SearchLink',
+    nodeType:TweetType
+})
 
 let storeType = new GraphQLObjectType({
       name: 'Store',
       fields: () => ({
         id: globalIdField("Store"),
-        search: {
-          type: viewerType,
+        searchConnection: {
+          type: searchConnection.connectionType,
           id: globalIdField("Search"),
           args: {
+            ...connectionArgs,
             q:{
               type: GraphQLString,
               description:"A UTF-8, URL-encoded search query of 500 characters maximum, including operators. Queries may additionally be limited by complexity."
@@ -154,7 +163,8 @@ let storeType = new GraphQLObjectType({
             }
           },
           resolve: (_,args) => {
-            return twitterCli.searchTweets(args)
+             return (connectionFromPromisedArray(
+                    twitterCli.searchTweets(args),args))
           }
         },
       

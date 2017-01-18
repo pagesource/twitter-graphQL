@@ -36,16 +36,16 @@ class App extends React.Component {
         <div className="search-container">
           <input type="search" ref={(el) => {this.searchInput = el;}} placeholder="Type here to search further" onChange={this.searchData.bind(this)}/>
           <select onChange={this.selectLimit.bind(this)}>
-            <option value="1" default>1</option>
-            <option value="5">5</option>
+            <option value="5" default>5</option>
             <option value="10">10</option>
             <option value="20">20</option>
+            <option value="30">30</option>
           </select>
         </div>
-        {this.props.tweet.search.tweet.map(tweet =>
+        {this.props.tweet.searchConnection.edges.map(tweet =>
           //  <span key={tweet.id}><small>id: {tweet.id}</small> <br></br> {tweet.text}  <br></br>-- @<i>{tweet.user.screen_name}</i></span>
 
-          <Card key={tweet.id}
+          <Card key={tweet.node.id}
                 style={{
                   margin: '15px auto',
                   width: '60%'
@@ -55,12 +55,12 @@ class App extends React.Component {
               style={{
                 fontSize: '20px'
               }}>
-              {tweet.text}+ {tweet.user.profile_image_url}
+              {tweet.node.text}+ {tweet.node.user.profile_image_url}
             </CardText>
             <CardHeader
-              title={tweet.user.screen_name}
-              avatar={tweet.user.profile_image_url}
-              subtitle={this.trimDate(tweet.created_at)}
+              title={tweet.node.user.screen_name}
+              avatar={tweet.node.user.profile_image_url}
+              subtitle={this.trimDate(tweet.node.created_at)}
               style={{
                 textAlign: 'right'
               }}
@@ -77,21 +77,23 @@ class App extends React.Component {
 App = Relay.createContainer(App, {
   initialVariables : {
        query : "graphQl",
-       limit : 1
+       limit : 5
     },
   fragments: {
     tweet: () => Relay.QL`
     fragment on Store{
-      search(q:$query,count:$limit){
-            tweet{
-                id,
-                text,
-                created_at,
-                user{
-                    screen_name,
-                    profile_image_url
-                }
+      searchConnection(q:$query,count:$limit,first:5){
+        edges{
+          node{
+            id,
+            text,
+            created_at,
+            user{
+                screen_name,
+                profile_image_url
             }
+          }
+        }
       }
     }
     `
