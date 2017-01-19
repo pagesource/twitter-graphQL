@@ -23,6 +23,7 @@
     "graphql": "0.7.0",
     "graphql-relay": "0.4.3",
     "lodash": "^4.17.2",
+    "lodash.debounce": "^4.0.8",
     "material-ui": "^0.16.4",
     "node-fetch": "1.5.1",
     "nodemon": "1.9.1",

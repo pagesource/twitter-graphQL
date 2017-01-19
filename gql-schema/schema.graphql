@@ -1,5 +1,31 @@
-schema {
-  query: TwitterAPI
+# An object with an ID
+interface Node {
+  # The id of the object.
+  id: ID!
+}
+
+# Information about pagination in a connection.
+type PageInfo {
+  # When paginating forwards, are there more items?
+  hasNextPage: Boolean!
+
+  # When paginating backwards, are there more items?
+  hasPreviousPage: Boolean!
+
+  # When paginating backwards, the cursor to continue.
+  startCursor: String
+
+  # When paginating forwards, the cursor to continue.
+  endCursor: String
+}
+
+type Query {
+  # Fetches an object given its ID
+  node(
+    # The ID of an object
+    id: ID!
+  ): Node
+  store: Store
 }
 
 # Retweet of a tweet
@@ -13,6 +39,43 @@ type Retweet {
   user: TwitterUser
 }
 
+# A connection to a list of items.
+type SearchLinkConnection {
+  # Information to aid in pagination.
+  pageInfo: PageInfo!
+
+  # A list of edges.
+  edges: [SearchLinkEdge]
+}
+
+# An edge in a connection.
+type SearchLinkEdge {
+  # The item at the end of the edge
+  node: Tweet
+
+  # A cursor for use in pagination
+  cursor: String!
+}
+
+type Store implements Node {
+  # The ID of an object
+  id: ID!
+  searchConnection(
+    after: String
+    first: Int
+    before: String
+    last: Int
+
+    # A UTF-8, URL-encoded search query of 500 characters maximum, including
+    # operators. Queries may additionally be limited by complexity.
+    q: String
+
+    # The number of tweets to return per page, up to a maximum of 100. This was
+    # formerly the “rpp” parameter in the old Search API.
+    count: Int
+  ): SearchLinkConnection
+}
+
 # A tweet object
 type Tweet {
   id: ID
@@ -23,25 +86,6 @@ type Tweet {
 
   # Get a list of retweets
   retweets(limit: Int = 5): [Retweet]
-}
-
-# The Twitter API
-type TwitterAPI {
-  tweet(
-    # Unique ID of tweet
-    id: String!
-  ): Tweet
-
-  # Returns a collection of relevant Tweets matching a specified query.
-  search(
-    # A UTF-8, URL-encoded search query of 500 characters maximum, including
-    # operators. Queries may additionally be limited by complexity.
-    q: String!
-
-    # The number of tweets to return per page, up to a maximum of 100. This was
-    # formerly the “rpp” parameter in the old Search API.
-    count: Int
-  ): Viewer
 }
 
 # Twitter user
@@ -64,8 +108,4 @@ type TwitterUser {
 
   # Get a list of tweets for current user
   tweets(limit: Int = 10): [Tweet]
-}
-
-type Viewer {
-  tweet: [Tweet]
 }

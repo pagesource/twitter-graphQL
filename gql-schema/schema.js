@@ -7,8 +7,40 @@ import {
   GraphQLInt,
   GraphQLList
 } from 'graphql';
+
+
+import{
+  globalIdField,
+  fromGlobalId,
+  nodeDefinitions,
+  connectionDefinitions,
+  connectionArgs,
+  connectionFromPromisedArray,
+  mutationWithClientMutationId
+} from 'graphql-relay';
+
 import * as twitterCli from '../twitter-cli';
 import * as Weather from '../weather';
+
+class Store {};
+let store = new Store();
+
+let nodeDefs = nodeDefinitions(    
+      (globalId) => {
+        let {type} = fromGlobalId(globalId);
+        if(type === "Store"){
+          return store;
+        }
+        return null;
+      },
+    
+      (obj) => {
+        if(obj instanceof Store){
+          return storeType;
+        }
+        return null;
+      }
+    );
 
 let UserType = new GraphQLObjectType({
   name: 'TwitterUser',
@@ -95,48 +127,62 @@ let RetweetType = new GraphQLObjectType({
   })
 });
 
+/*let viewer = {};
 let viewerType = new GraphQLObjectType({
   name: 'Viewer',
-  fields: {
+  fields: () => ({
+    id: globalIdField("Viewer"),
     tweet: {
       type: new GraphQLList(TweetType),
-      resolve: (viewer) => viewer,
-    },
-  },
-});
-
-let twitterType = new GraphQLObjectType({
-  name: 'TwitterAPI',
-  description: 'The Twitter API',
-  fields: {
-    tweet: {
-      type: TweetType,
-      args: {
-        id: {
-          type: new GraphQLNonNull(GraphQLString),
-          description: 'Unique ID of tweet'
-        }
-      },
-      resolve: (_, { id: tweetId }) => twitterCli.getTweet(tweetId)
-    },
-    search: {
-      type: viewerType,
-      description: "Returns a collection of relevant Tweets matching a specified query.",
-      args: {
-        q: {
-          type: new GraphQLNonNull(GraphQLString),
-          description: "A UTF-8, URL-encoded search query of 500 characters maximum, including operators. Queries may additionally be limited by complexity."
-        },
-        count: {
-          type: GraphQLInt,
-          description: "The number of tweets to return per page, up to a maximum of 100. This was formerly the “rpp” parameter in the old Search API."
-        }
-      },
-      resolve: (_, searchArgs) => twitterCli.searchTweets(searchArgs)
+      resolve: (viewer) => viewer
     }
-  }
-});
+  })
+});*/
+
+let searchConnection = connectionDefinitions({
+    name:'SearchLink',
+    nodeType:TweetType
+})
+
+let storeType = new GraphQLObjectType({
+      name: 'Store',
+      fields: () => ({
+        id: globalIdField("Store"),
+        searchConnection: {
+          type: searchConnection.connectionType,
+          id: globalIdField("Search"),
+          args: {
+            ...connectionArgs,
+            q:{
+              type: GraphQLString,
+              description:"A UTF-8, URL-encoded search query of 500 characters maximum, including operators. Queries may additionally be limited by complexity."
+            },
+            count: {
+              type: GraphQLInt,
+              description: "The number of tweets to return per page, up to a maximum of 100. This was formerly the “rpp” parameter in the old Search API."
+            }
+          },
+          resolve: (_,args) => {
+             return (connectionFromPromisedArray(
+                    twitterCli.searchTweets(args),args))
+          }
+        },
+      
+      }),
+      interfaces:[nodeDefs.nodeInterface]  
+  });
+
+
 
 export const Schema = new GraphQLSchema({
-  query: twitterType
+  query: new GraphQLObjectType({
+      name: 'Query',
+      fields: () => ({
+        node: nodeDefs.nodeField,
+        store: {
+          type: storeType,
+          resolve: () => store
+        }
+      })
+    })
 });
